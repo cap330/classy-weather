@@ -46,7 +46,7 @@ class App extends React.Component {
       // 1) Getting location (geocoding)
       const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${this.state.location}`);
       const geoData = await geoRes.json();
-      console.log(geoData);
+      //console.log(geoData);
 
       if (!geoData.results) throw new Error('Location not found');
 
@@ -59,7 +59,7 @@ class App extends React.Component {
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=${timezone}&daily=weathercode,temperature_2m_max,temperature_2m_min`
       );
       const weatherData = await weatherRes.json();
-      console.log(weatherData.daily);
+      //console.log(weatherData.daily);
       this.setState({ weather: weatherData.daily });
     } catch (err) {
       console.err(err);
@@ -68,21 +68,14 @@ class App extends React.Component {
     }
   };
 
+  setLocation = e => this.setState({ location: e.target.value });
+
   render() {
     return (
       <div className="app">
         <h1>Classy Weather</h1>
-        {/* <h2>
-          {this.state.displayLocation} {this.state.countryFlag}
-        </h2> */}
-        <div>
-          <input
-            type="text"
-            placeholder="Search from location..."
-            value={this.state.location}
-            onChange={e => this.setState({ location: e.target.value })}
-          />
-        </div>
+        <Input location={this.state.location} onChangeLocation={this.setLocation} />
+
         <button onClick={() => this.fetchWeather(this.location)}>Get weather</button>
         {this.state.isLoading && <p className="loader">Loading...</p>}
         {this.state.weather.weathercode && (
@@ -95,6 +88,21 @@ class App extends React.Component {
 
 export default App;
 
+class Input extends React.Component {
+  render() {
+    //const { onChangeLocation } = this.props;
+    return (
+      <div>
+        <input
+          type="text"
+          placeholder="Search from location..."
+          value={this.props.location}
+          onChange={this.props.onChangeLocation}
+        />
+      </div>
+    );
+  }
+}
 ///////////////////////////////////////////////////////////////
 
 class Weather extends React.Component {
