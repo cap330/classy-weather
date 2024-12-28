@@ -41,6 +41,7 @@ class App extends React.Component {
   state = { location: '', isLoading: false, displayLocation: '', weather: {}, countryFlag: '' };
 
   fetchWeather = async () => {
+    if (this.state.location.length < 2) return this.setState({ weather: {} });
     try {
       this.setState({ isLoading: true });
       // 1) Getting location (geocoding)
@@ -62,7 +63,7 @@ class App extends React.Component {
       //console.log(weatherData.daily);
       this.setState({ weather: weatherData.daily });
     } catch (err) {
-      console.err(err);
+      console.error(err);
     } finally {
       this.setState({ isLoading: false });
     }
@@ -70,13 +71,27 @@ class App extends React.Component {
 
   setLocation = e => this.setState({ location: e.target.value });
 
+  // useEffect []
+  componentDidMount() {
+    //this.fetchWeather();
+    this.setState({ location: localStorage.getItem('location') || '' });
+  }
+
+  // useEffect [location]
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.location !== prevState.location) {
+      localStorage.setItem('location', this.state.location);
+      this.fetchWeather();
+    }
+  }
+
   render() {
     return (
       <div className="app">
         <h1>Classy Weather</h1>
         <Input location={this.state.location} onChangeLocation={this.setLocation} />
 
-        <button onClick={() => this.fetchWeather(this.location)}>Get weather</button>
+        {/* <button onClick={() => this.fetchWeather(this.location)}>Get weather</button> */}
         {this.state.isLoading && <p className="loader">Loading...</p>}
         {this.state.weather.weathercode && (
           <Weather weather={this.state.weather} location={this.state.displayLocation} />
@@ -106,6 +121,10 @@ class Input extends React.Component {
 ///////////////////////////////////////////////////////////////
 
 class Weather extends React.Component {
+  componentWillUnmount() {
+    console.log('Weather wil unmount');
+  }
+
   render() {
     //console.log(this.props);
     const { temperature_2m_max: max, temperature_2m_min: min, time: dates, weathercode: code } = this.props.weather;
